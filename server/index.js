@@ -9,6 +9,8 @@ const config = require("./config/key");
 
 const { User } = require("./models/User");
 
+const { auth } = require("./middleware/auth");
+
 //application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 //application/json
@@ -28,7 +30,7 @@ mongoose
 
 app.get("/", (req, res) => res.send("Hello World!!!!"));
 
-app.post("/register", (req, res) => {
+app.post("/api/users/register", (req, res) => {
   //회원 가입 할때 필요한 정보들을 client에서 가져오면 그것을 DB에 넣어줌
 
   const user = new User(req.body);
@@ -41,7 +43,7 @@ app.post("/register", (req, res) => {
   });
 });
 
-app.post("/login", (req, res) => {
+app.post("/api/users/login", (req, res) => {
   //요청된 email을 DB에서 찾음
   User.findOne({ email: req.body.email }, (err, user) => {
     if (!user) {
@@ -65,6 +67,23 @@ app.post("/login", (req, res) => {
           .json({ loginSuccess: true, userId: user._id });
       });
     });
+  });
+});
+
+app.get("/api/users/auth", auth, (req, res) => {
+  //middleware 통과 => auth true
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0 ? false : true,
+    isAuth: true,
+    user: req.user,
+  });
+});
+
+app.get("/api/users/logout", auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, user) => {
+    if (err) return res.json({ success: false, err });
+    return res.status(200).send({ success: true });
   });
 });
 
