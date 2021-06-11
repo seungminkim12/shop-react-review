@@ -18,11 +18,11 @@ const creatStoreWithMiddleware = applyMiddleware(
 ReactDOM.render(
   <React.StrictMode>
     <Provider
-      store={
-        (creatStoreWithMiddleware,
+      store={creatStoreWithMiddleware(
+        Reducer,
         window.__REDUX_DEVTOOLS_EXTENSION__ &&
-          window.__REDUX_DEVTOOLS_EXTENSION__())
-      }
+          window.__REDUX_DEVTOOLS_EXTENSION__()
+      )}
     >
       <App />
     </Provider>

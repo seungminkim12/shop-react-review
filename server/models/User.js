@@ -65,7 +65,7 @@ userSchema.methods.comparePassword = function (plainPassword, cb) {
 userSchema.methods.generateToken = function (cb) {
   var user = this;
   //jasonwebtoken 을 이용 token 생성
-  var token = jwt.sign(user._id.toHexString(), "secretToken");
+  var token = jwt.sign(user._id.toHexString(), "secret");
   user.token = token;
   user.save(function (err, user) {
     if (err) return cb(err);
@@ -76,9 +76,11 @@ userSchema.methods.generateToken = function (cb) {
 userSchema.statics.findByToken = function (token, cb) {
   var user = this;
   //token decode
-  jwt.verify(token, "secretToken", function (err, decoded) {
+  jwt.verify(token, "secret", function (err, decoded) {
     //find user token비교
+    if (err) return cb(err);
     user.findOne({ _id: decoded, token: token }, function (err, user) {
+      console.log("findOne 들림?");
       if (err) return cb(err);
       cb(null, user);
     });
